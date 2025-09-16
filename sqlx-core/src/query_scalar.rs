@@ -100,7 +100,7 @@ where
     /// Execute multiple queries and return the generated results as a stream
     /// from each query, in a stream.
     #[inline]
-    #[deprecated = "Only the SQLite driver supports multiple statements in one prepared statement and that behavior is deprecated. Use `sqlx::raw_sql()` instead. See https://github.com/launchbadge/sqlx/issues/3108 for discussion."]
+    #[deprecated]
     pub fn fetch_many<'e, 'c: 'e, E>(
         self,
         executor: E,
@@ -199,31 +199,6 @@ where
 ///
 /// For details about prepared statements and allowed SQL syntax, see [`query()`][crate::query::query].
 ///
-/// ### Example: Simple Lookup
-/// If you just want to look up a single value with little fanfare, this API is perfect for you:
-///
-/// ```rust,no_run
-/// # async fn example_lookup() -> Result<(), Box<dyn std::error::Error>> {
-/// # let mut conn: sqlx::PgConnection = unimplemented!();
-/// use uuid::Uuid;
-///
-/// // MySQL and MariaDB: use `?`
-/// let user_id: Option<Uuid> = sqlx::query_scalar("SELECT user_id FROM users WHERE username = $1")
-///     .bind("alice")
-///     // Use `&mut` where `conn` is a connection or a transaction, or use `&` for a `Pool`.
-///     .fetch_optional(&mut conn)
-///     .await?;
-///
-/// let user_id = user_id.ok_or("unknown user")?;
-///
-/// # Ok(())
-/// # }
-/// ```
-///
-/// Note how we're using `.fetch_optional()` because the lookup may return no results,
-/// in which case we need to be able to handle an empty result set.
-/// Any rows after the first are ignored.
-///
 /// ### Example: `COUNT`
 /// This API is the easiest way to invoke an aggregate query like `SELECT COUNT(*)`, because you
 /// can conveniently extract the result:
@@ -256,7 +231,6 @@ where
 /// ```rust,no_run
 /// # async fn example_exists() -> sqlx::Result<()> {
 /// # let mut conn: sqlx::PgConnection = unimplemented!();
-/// // MySQL and MariaDB: use `?`
 /// let username_taken: bool = sqlx::query_scalar(
 ///     "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)"
 /// )

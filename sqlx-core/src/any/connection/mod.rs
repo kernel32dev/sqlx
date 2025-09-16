@@ -21,7 +21,6 @@ mod executor;
 ///
 /// ```text
 /// postgres://postgres@localhost/test
-/// sqlite://a.sqlite
 /// ```
 #[derive(Debug)]
 pub struct AnyConnection {
@@ -29,7 +28,7 @@ pub struct AnyConnection {
 }
 
 impl AnyConnection {
-    /// Returns the name of the database backend in use (e.g. PostgreSQL, MySQL, SQLite, etc.)
+    /// Returns the name of the database backend in use (e.g. PostgreSQL)
     pub fn backend_name(&self) -> &str {
         self.backend.name()
     }

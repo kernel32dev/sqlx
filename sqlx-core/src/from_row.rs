@@ -199,17 +199,15 @@ use crate::{error::Error, row::Row};
 ///     id: i32,
 ///     name: String,
 ///     #[sqlx(try_from = "i64")]
-///     bigIntInMySql: u64
+///     bigInt: u64
 /// }
 /// ```
 ///
 /// Given a query such as:
 ///
 /// ```sql
-/// SELECT id, name, bigIntInMySql FROM users;
+/// SELECT id, name, bigInt FROM users;
 /// ```
-///
-/// In MySql, `BigInt` type matches `i64`, but you can convert it to `u64` by `try_from`.
 ///
 /// #### `json`
 ///
@@ -283,29 +281,7 @@ use crate::{error::Error, row::Row};
 /// ## Manual implementation
 ///
 /// You can also implement the [`FromRow`] trait by hand. This can be useful if you
-/// have a struct with a field that needs manual decoding:
-///
-///
-/// ```rust,ignore
-/// use sqlx::{FromRow, sqlite::SqliteRow, sqlx::Row};
-/// struct MyCustomType {
-///     custom: String,
-/// }
-///
-/// struct Foo {
-///     bar: MyCustomType,
-/// }
-///
-/// impl FromRow<'_, SqliteRow> for Foo {
-///     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
-///         Ok(Self {
-///             bar: MyCustomType {
-///                 custom: row.try_get("custom")?
-///             }
-///         })
-///     }
-/// }
-/// ```
+/// have a struct with a field that needs manual decoding
 pub trait FromRow<'r, R: Row>: Sized {
     fn from_row(row: &'r R) -> Result<Self, Error>;
 }

@@ -138,19 +138,15 @@ where
     /// configuration for the exact value as it may be different than listed here,
     /// the defaults for supported databases as of writing are as follows:
     ///
-    /// * Postgres and MySQL: 65535
+    /// * Postgres: 65535
     ///     * You may find sources that state that Postgres has a limit of 32767,
     ///       but that is a misinterpretation of the specification by the JDBC driver implementation
     ///       as discussed in [this Github issue][postgres-limit-issue]. Postgres itself
     ///       asserts that the number of parameters is in the range `[0, 65535)`.
-    /// * SQLite: 32766 (configurable by [`SQLITE_LIMIT_VARIABLE_NUMBER`])
-    ///     * SQLite prior to 3.32.0: 999
-    /// * MSSQL: 2100
     ///
     /// Exceeding these limits may panic (as a sanity check) or trigger a database error at runtime
     /// depending on the implementation.
     ///
-    /// [`SQLITE_LIMIT_VARIABLE_NUMBER`]: https://www.sqlite.org/limits.html#max_variable_number
     /// [postgres-limit-issue]: https://github.com/launchbadge/sqlx/issues/671#issuecomment-687043510
     pub fn push_bind<'t, T>(&mut self, value: T) -> &mut Self
     where
@@ -178,27 +174,6 @@ where
     /// [`.push_bind()`][Separated::push_bind] methods which push `separator` to the query
     /// before their normal behavior. [`.push_unseparated()`][Separated::push_unseparated] and [`.push_bind_unseparated()`][Separated::push_bind_unseparated] are also
     /// provided to push a SQL fragment without the separator.
-    ///
-    /// ```rust
-    /// # #[cfg(feature = "mysql")] {
-    /// use sqlx::{Execute, MySql, QueryBuilder};
-    /// let foods = vec!["pizza".to_string(), "chips".to_string()];
-    /// let mut query_builder: QueryBuilder<MySql> = QueryBuilder::new(
-    ///     "SELECT * from food where name in ("
-    /// );
-    /// // One element vector is handled correctly but an empty vector
-    /// // would cause a sql syntax error
-    /// let mut separated = query_builder.separated(", ");
-    /// for value_type in foods.iter() {
-    ///   separated.push_bind(value_type);
-    /// }
-    /// separated.push_unseparated(") ");
-    ///
-    /// let mut query = query_builder.build();
-    /// let sql = query.sql();
-    /// assert!(sql.ends_with("in (?, ?) "));
-    /// # }
-    /// ```
     pub fn separated<Sep>(&mut self, separator: Sep) -> Separated<'_, DB, Sep>
     where
         Sep: Display,
@@ -236,79 +211,13 @@ where
     /// Because the `Arguments` API has a lifetime that must live longer than `Self`, you cannot
     /// bind by-reference from an iterator unless that iterator yields references that live
     /// longer than `Self`, even if the specific `Arguments` implementation doesn't actually
-    /// borrow the values (like `MySqlArguments` and `PgArguments` immediately encode the arguments
+    /// borrow the values (like `PgArguments` immediately encode the arguments
     /// and don't borrow them past the `.add()` call).
     ///
     /// So basically, if you want to bind by-reference you need an iterator that yields references,
     /// e.g. if you have values in a `Vec` you can do `.iter()` instead of `.into_iter()`. The
     /// example below uses an iterator that creates values on the fly
     /// and so cannot bind by-reference.
-    ///
-    /// ### Example (MySQL)
-    ///
-    /// ```rust
-    /// # #[cfg(feature = "mysql")]
-    /// # {
-    /// use sqlx::{Execute, MySql, QueryBuilder};
-    ///
-    /// struct User {
-    ///     id: i32,
-    ///     username: String,
-    ///     email: String,
-    ///     password: String,
-    /// }
-    ///
-    /// // The number of parameters in MySQL must fit in a `u16`.
-    /// const BIND_LIMIT: usize = 65535;
-    ///
-    /// // This would normally produce values forever!
-    /// let users = (0..).map(|i| User {
-    ///     id: i,
-    ///     username: format!("test_user_{i}"),
-    ///     email: format!("test-user-{i}@example.com"),
-    ///     password: format!("Test!User@Password#{i}"),
-    /// });
-    ///
-    /// let mut query_builder: QueryBuilder<MySql> = QueryBuilder::new(
-    ///     // Note the trailing space; most calls to `QueryBuilder` don't automatically insert
-    ///     // spaces as that might interfere with identifiers or quoted strings where exact
-    ///     // values may matter.
-    ///     "INSERT INTO users(id, username, email, password) "
-    /// );
-    ///
-    /// // Note that `.into_iter()` wasn't needed here since `users` is already an iterator.
-    /// query_builder.push_values(users.take(BIND_LIMIT / 4), |mut b, user| {
-    ///     // If you wanted to bind these by-reference instead of by-value,
-    ///     // you'd need an iterator that yields references that live as long as `query_builder`,
-    ///     // e.g. collect it to a `Vec` first.
-    ///     b.push_bind(user.id)
-    ///         .push_bind(user.username)
-    ///         .push_bind(user.email)
-    ///         .push_bind(user.password);
-    /// });
-    ///
-    /// let mut query = query_builder.build();
-    ///
-    /// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.
-    /// // For the sake of demonstration though, we're just going to assert the contents
-    /// // of the query.
-    ///
-    /// // These are methods of the `Execute` trait, not normally meant to be called in user code.
-    /// let sql = query.sql();
-    /// let arguments = query.take_arguments().unwrap();
-    ///
-    /// assert!(sql.starts_with(
-    ///     "INSERT INTO users(id, username, email, password) VALUES (?, ?, ?, ?), (?, ?, ?, ?)"
-    /// ));
-    ///
-    /// assert!(sql.ends_with("(?, ?, ?, ?)"));
-    ///
-    /// // Not a normally exposed function, only used for this doctest.
-    /// // 65535 / 4 = 16383 (rounded down)
-    /// // 16383 * 4 = 65532
-    /// assert_eq!(arguments.len(), 65532);
-    /// # }
-    /// ```
     pub fn push_values<I, F>(&mut self, tuples: I, mut push_tuple: F) -> &mut Self
     where
         I: IntoIterator,
@@ -355,72 +264,6 @@ where
     /// ### Notes
     ///
     /// If `tuples` is empty, this will likely produce a syntactically invalid query
-    ///
-    /// ### Example (MySQL)
-    ///
-    /// ```rust
-    /// # #[cfg(feature = "mysql")]
-    /// # {
-    /// use sqlx::{Execute, MySql, QueryBuilder};
-    ///
-    /// struct User {
-    ///     id: i32,
-    ///     username: String,
-    ///     email: String,
-    ///     password: String,
-    /// }
-    ///
-    /// // The number of parameters in MySQL must fit in a `u16`.
-    /// const BIND_LIMIT: usize = 65535;
-    ///
-    /// // This would normally produce values forever!
-    /// let users = (0..).map(|i| User {
-    ///     id: i,
-    ///     username: format!("test_user_{i}"),
-    ///     email: format!("test-user-{i}@example.com"),
-    ///     password: format!("Test!User@Password#{i}"),
-    /// });
-    ///
-    /// let mut query_builder: QueryBuilder<MySql> = QueryBuilder::new(
-    ///     // Note the trailing space; most calls to `QueryBuilder` don't automatically insert
-    ///     // spaces as that might interfere with identifiers or quoted strings where exact
-    ///     // values may matter.
-    ///     "SELECT * FROM users WHERE (id, username, email, password) in"
-    /// );
-    ///
-    /// // Note that `.into_iter()` wasn't needed here since `users` is already an iterator.
-    /// query_builder.push_tuples(users.take(BIND_LIMIT / 4), |mut b, user| {
-    ///     // If you wanted to bind these by-reference instead of by-value,
-    ///     // you'd need an iterator that yields references that live as long as `query_builder`,
-    ///     // e.g. collect it to a `Vec` first.
-    ///     b.push_bind(user.id)
-    ///         .push_bind(user.username)
-    ///         .push_bind(user.email)
-    ///         .push_bind(user.password);
-    /// });
-    ///
-    /// let mut query = query_builder.build();
-    ///
-    /// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.
-    /// // For the sake of demonstration though, we're just going to assert the contents
-    /// // of the query.
-    ///
-    /// // These are methods of the `Execute` trait, not normally meant to be called in user code.
-    /// let sql = query.sql();
-    /// let arguments = query.take_arguments().unwrap();
-    ///
-    /// assert!(sql.starts_with(
-    ///     "SELECT * FROM users WHERE (id, username, email, password) in ((?, ?, ?, ?), (?, ?, ?, ?), "
-    /// ));
-    ///
-    /// assert!(sql.ends_with("(?, ?, ?, ?)) "));
-    ///
-    /// // Not a normally exposed function, only used for this doctest.
-    /// // 65535 / 4 = 16383 (rounded down)
-    /// // 16383 * 4 = 65532
-    /// assert_eq!(arguments.len(), 65532);
-    /// }
-    /// ```
     pub fn push_tuples<I, F>(&mut self, tuples: I, mut push_tuple: F) -> &mut Self
     where
         I: IntoIterator,

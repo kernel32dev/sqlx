@@ -105,7 +105,7 @@ event-listener = "5.2.0"
 hashbrown = "0.15.0"
 
 [dev-dependencies]
-sqlx = { workspace = true, features = ["postgres", "sqlite", "mysql", "migrate", "macros", "time", "uuid"] }
+sqlx = { workspace = true, features = ["postgres", "migrate", "macros", "time", "uuid"] }
 tokio = { version = "1", features = ["rt"] }
 
 [lints]

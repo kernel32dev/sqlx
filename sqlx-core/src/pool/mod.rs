@@ -16,10 +16,7 @@
 //! Type aliases are provided for each database to make it easier to sprinkle `Pool` through
 //! your codebase:
 //!
-//! * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)
-//! * [MySqlPool][crate::mysql::MySqlPool] (MySQL)
 //! * [PgPool][crate::postgres::PgPool] (PostgreSQL)
-//! * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)
 //!
 //! # Opening a connection pool
 //!
@@ -31,14 +28,6 @@
 //! use sqlx::postgres::Postgres;
 //!
 //! let pool = Pool::<Postgres>::connect("postgres://").await?;
-//! ```
-//!
-//! For convenience, database-specific type aliases are provided:
-//!
-//! ```rust,ignore
-//! use sqlx::mssql::MssqlPool;
-//!
-//! let pool = MssqlPool::connect("mssql://").await?;
 //! ```
 //!
 //! # Using a connection pool
@@ -128,17 +117,13 @@ mod options;
 /// Type aliases are provided for each database to make it easier to sprinkle `Pool` through
 /// your codebase:
 ///
-/// * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)
-/// * [MySqlPool][crate::mysql::MySqlPool] (MySQL)
 /// * [PgPool][crate::postgres::PgPool] (PostgreSQL)
-/// * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)
 ///
 /// [web::ThinData]: https://docs.rs/actix-web/4.9.0/actix_web/web/struct.ThinData.html
 ///
 /// ### Note: Drop Behavior
 /// Due to a lack of async `Drop`, dropping the last `Pool` handle may not immediately clean
-/// up connections by itself. The connections will be dropped locally, which is sufficient for
-/// SQLite, but for client/server databases like MySQL and Postgres, that only closes the
+/// up connections by itself. For client/server databases like Postgres, that only closes the
 /// client side of the connection. The server will not know the connection is closed until
 /// potentially much later: this is usually dictated by the TCP keepalive timeout in the server
 /// settings.
@@ -175,10 +160,6 @@ mod options;
 /// ##### 1. Overhead of Opening a Connection
 /// Opening a database connection is not exactly a cheap operation.
 ///
-/// For SQLite, it means numerous requests to the filesystem and memory allocations, while for
-/// server-based databases it involves performing DNS resolution, opening a new TCP connection and
-/// allocating buffers.
-///
 /// Each connection involves a nontrivial allocation of resources for the database server, usually
 /// including spawning a new thread or process specifically to handle the connection, both for
 /// concurrency and isolation of faults.
@@ -197,7 +178,7 @@ mod options;
 /// create that many connections up-front so that they are ready to go when a request comes in,
 /// and maintain that number on a best-effort basis for consistent performance.
 ///
-/// ##### 2. Connection Limits (MySQL, MSSQL, Postgres)
+/// ##### 2. Connection Limits (Postgres)
 /// Database servers usually place hard limits on the number of connections that are allowed open at
 /// any given time, to maintain performance targets and prevent excessive allocation of resources,
 /// such as RAM, journal files, disk caches, etc.
@@ -206,13 +187,6 @@ mod options;
 /// distributions of the same database, but are typically configurable on server start;
 /// if you're paying for managed database hosting then the connection limit will typically vary with
 /// your pricing tier.
-///
-/// In MySQL, the default limit is typically 150, plus 1 which is reserved for a user with the
-/// `CONNECTION_ADMIN` privilege so you can still access the server to diagnose problems even
-/// with all connections being used.
-///
-/// In MSSQL the only documentation for the default maximum limit is that it depends on the version
-/// and server configuration.
 ///
 /// In Postgres, the default limit is typically 100, minus 3 which are reserved for superusers
 /// (putting the default limit for unprivileged users at 97 connections).
@@ -235,8 +209,8 @@ mod options;
 /// ##### 3. Resource Reuse
 /// The first time you execute a query against your database, the database engine must first turn
 /// the SQL into an actionable _query plan_ which it may then execute against the database. This
-/// involves parsing the SQL query, validating and analyzing it, and in the case of Postgres 12+ and
-/// SQLite, generating code to execute the query plan (native or bytecode, respectively).
+/// involves parsing the SQL query, validating and analyzing it, and in the case of Postgres 12+
+/// , generating code to execute the query plan (native or bytecode, respectively).
 ///
 /// These database servers provide a way to amortize this overhead by _preparing_ the query,
 /// associating it with an object ID and placing its query plan in a cache to be referenced when
@@ -273,9 +247,6 @@ impl<DB: Database> Pool<DB> {
     /// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:
     ///
     /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
-    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
-    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
-    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
     /// For production applications, you'll likely want to make at least few tweaks.
@@ -306,9 +277,6 @@ impl<DB: Database> Pool<DB> {
     /// Refer to the relevant [`ConnectOptions`][crate::connection::ConnectOptions] impl for your database for the expected URL format:
     ///
     /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
-    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
-    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
-    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
     /// For production applications, you'll likely want to make at least few tweaks.
@@ -345,7 +313,7 @@ impl<DB: Database> Pool<DB> {
     /// gracefully handle cancellation here.
     ///
     /// However, if your workload is sensitive to dropped connections such as using an in-memory
-    /// SQLite database with a pool size of 1, you can pretty easily ensure that a cancelled
+    /// S-Q-L-i-t-e database with a pool size of 1, you can pretty easily ensure that a cancelled
     /// `acquire()` call will never drop connections by tweaking your [`PoolOptions`]:
     ///
     /// * Set [`test_before_acquire(false)`][PoolOptions::test_before_acquire]

@@ -19,10 +19,6 @@ Note that while SQLx no longer produces a compile error if zero or multiple runt
 which is useful for libraries building on top of it,
 **the use of nearly any async function in the API will panic without at least one runtime feature enabled**.
 
-The chief exception is the SQLite driver, which is runtime-agnostic, including its integration with the query macros.
-However, [`SqlitePool`] _does_ require runtime support for timeouts and spawning
-internal management tasks.
-
 ### TLS Support
 
 For securely communicating with SQL servers over an untrusted network connection such as the internet,

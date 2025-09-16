@@ -18,8 +18,6 @@ fn assert_common_config(config: &config::common::Config) {
 }
 
 fn assert_drivers_config(config: &config::drivers::Config) {
-    assert_eq!(config.sqlite.unsafe_load_extensions, ["uuid", "vsv"]);
-
     #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
     #[serde(rename_all = "kebab-case")]
     struct TestExternalDriverConfig {

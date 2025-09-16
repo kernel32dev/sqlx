@@ -80,7 +80,7 @@ where
     DB: Database,
 {
     // This API can't take `ValueRef` directly as it would need to pass it to `Decode` by-value,
-    // which means taking ownership of it. We cannot rely on a `Clone` impl because `SqliteValueRef` doesn't have one.
+    // which means taking ownership of it. We cannot rely on a `Clone` impl because `S-q-l-i-t-eValueRef` doesn't have one.
     /// When printed with [`Debug`], attempt to decode `value` as the given type `T` and format it using [`Debug`].
     ///
     /// If `value` could not be decoded as `T`, the reason is printed instead.

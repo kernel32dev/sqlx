@@ -12,7 +12,6 @@ use url::Url;
 ///
 /// ```text
 /// postgres://postgres:password@localhost/database
-/// mysql://root:password@localhost/database
 /// ```
 #[derive(Debug, Clone)]
 #[non_exhaustive]

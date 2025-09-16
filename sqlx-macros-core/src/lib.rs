@@ -45,12 +45,8 @@ pub mod migrate;
 
 #[cfg(feature = "macros")]
 pub const FOSS_DRIVERS: &[QueryDriver] = &[
-    #[cfg(feature = "mysql")]
-    QueryDriver::new::<sqlx_mysql::MySql>(),
     #[cfg(feature = "postgres")]
     QueryDriver::new::<sqlx_postgres::Postgres>(),
-    #[cfg(feature = "_sqlite")]
-    QueryDriver::new::<sqlx_sqlite::Sqlite>(),
 ];
 
 pub fn block_on<F>(f: F) -> F::Output

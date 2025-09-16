@@ -190,7 +190,7 @@ where
 }
 
 pub(super) fn hash_string(query: &str) -> String {
-    // picked `sha2` because it's already in the dependency tree for both MySQL and Postgres
+    // picked `sha2` because it's already in the dependency tree for Postgres
     use sha2::{Digest, Sha256};
 
     hex::encode(Sha256::digest(query.as_bytes()))

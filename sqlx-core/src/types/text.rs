@@ -22,54 +22,6 @@ use std::ops::{Deref, DerefMut};
 /// Fortunately, most `Display` implementations are infallible by convention anyway
 /// (the standard `ToString` trait also assumes this), but you may still want to audit
 /// the source code for any types you intend to use with this adapter, just to be safe.
-///
-/// ### Example: `SocketAddr`
-///
-/// MySQL and SQLite do not have a native SQL equivalent for `SocketAddr`, so if you want to
-/// store and retrieve instances of it, it makes sense to map it to `TEXT`:
-///
-/// ```rust,no_run
-/// # use sqlx::types::{time, uuid};
-///
-/// use std::net::SocketAddr;
-///
-/// use sqlx::Connection;
-/// use sqlx::mysql::MySqlConnection;
-/// use sqlx::types::Text;
-///
-/// use uuid::Uuid;
-/// use time::OffsetDateTime;
-///
-/// #[derive(sqlx::FromRow, Debug)]
-/// struct Login {
-///     user_id: Uuid,
-///     socket_addr: Text<SocketAddr>,
-///     login_at: OffsetDateTime
-/// }
-///
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-///
-/// let mut conn: MySqlConnection = MySqlConnection::connect("<DATABASE URL>").await?;
-///
-/// let user_id: Uuid = "e9a72cdc-d907-48d6-a488-c64a91fd063c".parse().unwrap();
-/// let socket_addr: SocketAddr = "198.51.100.47:31790".parse().unwrap();
-///
-/// // CREATE TABLE user_login(user_id VARCHAR(36), socket_addr TEXT, login_at TIMESTAMP);
-/// sqlx::query("INSERT INTO user_login(user_id, socket_addr, login_at) VALUES (?, ?, NOW())")
-///     .bind(user_id)
-///     .bind(Text(socket_addr))
-///     .execute(&mut conn)
-///     .await?;
-///
-/// let logins: Vec<Login> = sqlx::query_as("SELECT * FROM user_login")
-///     .fetch_all(&mut conn)
-///     .await?;
-///
-/// println!("Logins for user ID {user_id}: {logins:?}");
-///
-/// # Ok(())
-/// # }
-/// ```
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Text<T>(pub T);
 

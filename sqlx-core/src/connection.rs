@@ -236,7 +236,7 @@ pub trait ConnectOptions: 'static + Send + Sync + FromStr<Err = Error> + Debug +
     /// * Hostname
     /// * Port
     /// * Database name
-    /// * Unix socket or SQLite database file path
+    /// * Unix socket
     /// * SSL mode (if applicable)
     /// * SSL CA certificate path
     /// * SSL client certificate path

@@ -34,7 +34,7 @@ pub enum MigrateError {
     #[error("cannot mix reversible migrations with simple migrations. All migrations should be reversible or simple migrations")]
     InvalidMixReversibleAndSimple,
 
-    // NOTE: this will only happen with a database that does not have transactional DDL (.e.g, MySQL or Oracle)
+    // NOTE: this will only happen with a database that does not have transactional DDL (.e.g, None)
     #[error(
         "migration {0} is partially applied; fix and remove row from `_sqlx_migrations` table"
     )]

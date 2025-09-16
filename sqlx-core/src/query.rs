@@ -193,7 +193,7 @@ where
 
     /// Execute multiple queries and return the rows affected from each query, in a stream.
     #[inline]
-    #[deprecated = "Only the SQLite driver supports multiple statements in one prepared statement and that behavior is deprecated. Use `sqlx::raw_sql()` instead. See https://github.com/launchbadge/sqlx/issues/3108 for discussion."]
+    #[deprecated]
     pub async fn execute_many<'e, 'c: 'e, E>(
         self,
         executor: E,
@@ -222,7 +222,7 @@ where
     /// For each query in the stream, any generated rows are returned first,
     /// then the `QueryResult` with the number of rows affected.
     #[inline]
-    #[deprecated = "Only the SQLite driver supports multiple statements in one prepared statement and that behavior is deprecated. Use `sqlx::raw_sql()` instead. See https://github.com/launchbadge/sqlx/issues/3108 for discussion."]
+    #[deprecated]
     // TODO: we'll probably still want a way to get the `DB::QueryResult` at the end of a `fetch()` stream.
     pub fn fetch_many<'e, 'c: 'e, E>(
         self,
@@ -393,7 +393,7 @@ where
 
     /// Execute multiple queries and return the generated results as a stream
     /// from each query, in a stream.
-    #[deprecated = "Only the SQLite driver supports multiple statements in one prepared statement and that behavior is deprecated. Use `sqlx::raw_sql()` instead."]
+    #[deprecated]
     pub fn fetch_many<'e, 'c: 'e, E>(
         mut self,
         executor: E,
@@ -529,7 +529,6 @@ where
 /// Execute a single SQL query as a prepared statement (transparently cached).
 ///
 /// The query string may only contain a single DML statement: `SELECT`, `INSERT`, `UPDATE`, `DELETE` and variants.
-/// The SQLite driver does not currently follow this restriction, but that behavior is deprecated.
 ///
 /// The connection will transparently prepare and cache the statement, which means it only needs to be parsed once
 /// in the connection's lifetime, and any generated query plans can be retained.
@@ -553,7 +552,7 @@ where
 ///
 /// // DO NOT DO THIS unless you're ABSOLUTELY CERTAIN it's what you need!
 /// let query = format!("SELECT * FROM articles WHERE content LIKE '%{user_input}%'");
-/// // where `conn` is `PgConnection` or `MySqlConnection`
+/// // where `conn` is `PgConnection`
 /// // or some other type that implements `Executor`.
 /// let results = sqlx::query(sqlx::AssertSqlSafe(query)).fetch_all(&mut conn).await?;
 /// # Ok(())
@@ -593,15 +592,9 @@ where
 ///
 /// The syntax for placeholders is unfortunately not standardized and depends on the database:
 ///
-/// * Postgres and SQLite: use `$1`, `$2`, `$3`, etc.
+/// * Postgres use `$1`, `$2`, `$3`, etc.
 ///     * The number is the Nth bound value, starting from one.
 ///     * The same placeholder can be used arbitrarily many times to refer to the same bound value.
-///     * SQLite technically supports MySQL's syntax as well as others, but we recommend using this syntax
-///       as SQLx's SQLite driver is written with it in mind.
-/// * MySQL and MariaDB: use `?`.
-///     * Placeholders are purely positional, similar to `println!("{}, {}", foo, bar)`.
-///     * The order of bindings must match the order of placeholders in the query.
-///     * To use a value in multiple places, you must bind it multiple times.
 ///
 /// In both cases, the placeholder syntax acts as a variable expression representing the bound value:
 ///
@@ -610,7 +603,7 @@ where
 /// # let mut conn: sqlx::PgConnection = unimplemented!();
 /// let user_input = "Alice's Apples";
 ///
-/// // Postgres and SQLite
+/// // Postgres
 /// let results = sqlx::query(
 ///     // Notice how we only have to bind the argument once and we can use it multiple times:
 ///     "SELECT * FROM articles
@@ -621,17 +614,6 @@ where
 ///     .fetch_all(&mut conn)
 ///     .await?;
 ///
-/// // MySQL and MariaDB
-/// let results = sqlx::query(
-///     "SELECT * FROM articles
-///      WHERE title LIKE CONCAT('%', ?, '%')
-///      OR content LIKE CONCAT('%', ?, '%')"
-/// )
-///     // If we want to reference the same value multiple times, we have to bind it multiple times:
-///     .bind(user_input)
-///     .bind(user_input)
-///     .fetch_all(&mut conn)
-///     .await?;
 /// # Ok(())
 /// # }
 /// ```

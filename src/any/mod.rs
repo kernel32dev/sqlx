@@ -37,12 +37,8 @@ pub fn install_default_drivers() {
 
     ONCE.call_once(|| {
         install_drivers(&[
-            #[cfg(feature = "mysql")]
-            sqlx_mysql::any::DRIVER,
             #[cfg(feature = "postgres")]
             sqlx_postgres::any::DRIVER,
-            #[cfg(feature = "_sqlite")]
-            sqlx_sqlite::any::DRIVER,
         ])
         .expect("non-default drivers already installed")
     });

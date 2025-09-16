@@ -53,9 +53,6 @@ pub struct Config {
     /// We recommend wrapping all type names in single quotes, as shown below,
     /// to avoid confusion.
     ///
-    /// MySQL/MariaDB and SQLite do not support custom types, so quoting type names should
-    /// never be necessary.
-    ///
     /// [quoted identifiers in Postgres]: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
     // Note: we wanted to be able to handle this intelligently,
     // but the `toml` crate authors weren't interested: https://github.com/toml-rs/toml/issues/761
@@ -170,10 +167,10 @@ pub struct Config {
     /// Postgres users: schema qualification should not be used for tables in the search path.
     ///
     /// ## Note: Quoted Identifiers
-    /// Schema, table, or column names using quoted identifiers ([MySQL], [Postgres], [SQLite])
+    /// Schema, table, or column names using quoted identifiers ([Postgres])
     /// in SQL must also be specified with quotes here.
     ///
-    /// Postgres and SQLite use double-quotes (`"Foo"`) while MySQL uses backticks (`\`Foo\`).
+    /// Postgres use double-quotes (`"Foo"`).
     ///
     /// Note, however, that the TOML format parses way the outer pair of quotes,
     /// so for quoted names in Postgres, double-quoting is necessary,
@@ -186,9 +183,7 @@ pub struct Config {
     /// We recommend wrapping all table and column names in single quotes, as shown below,
     /// to avoid confusion.
     ///
-    /// [MySQL]: https://dev.mysql.com/doc/refman/8.4/en/identifiers.html
     /// [Postgres]: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-    /// [SQLite]: https://sqlite.org/lang_keywords.html
     // Note: we wanted to be able to handle this intelligently,
     // but the `toml` crate authors weren't interested: https://github.com/toml-rs/toml/issues/761
     //

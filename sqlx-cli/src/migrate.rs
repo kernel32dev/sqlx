@@ -306,10 +306,8 @@ pub async fn run(
     }
 
     // Close the connection before exiting:
-    // * For MySQL and Postgres this should ensure timely cleanup on the server side,
+    // * For Postgres this should ensure timely cleanup on the server side,
     //   including decrementing the open connection count.
-    // * For SQLite this should checkpoint and delete the WAL file to ensure the migrations
-    //   were actually applied to the database file and aren't just sitting in the WAL file.
     let _ = conn.close().await;
 
     Ok(())

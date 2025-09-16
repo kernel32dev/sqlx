@@ -179,32 +179,6 @@ fn expand_derive_decode_strong_enum(
 
     let mut tts = TokenStream::new();
 
-    if cfg!(feature = "mysql") {
-        tts.extend(quote!(
-            #[automatically_derived]
-            impl<'r> ::sqlx::decode::Decode<'r, ::sqlx::mysql::MySql> for #ident {
-                fn decode(
-                    value: ::sqlx::mysql::MySqlValueRef<'r>,
-                ) -> ::std::result::Result<
-                    Self,
-                    ::std::boxed::Box<
-                        dyn ::std::error::Error
-                            + 'static
-                            + ::std::marker::Send
-                            + ::std::marker::Sync,
-                    >,
-                > {
-                    let value = <&'r ::std::primitive::str as ::sqlx::decode::Decode<
-                        'r,
-                        ::sqlx::mysql::MySql,
-                    >>::decode(value)?;
-
-                    #values
-                }
-            }
-        ));
-    }
-
     if cfg!(feature = "postgres") {
         tts.extend(quote!(
             #[automatically_derived]
@@ -223,32 +197,6 @@ fn expand_derive_decode_strong_enum(
                     let value = <&'r ::std::primitive::str as ::sqlx::decode::Decode<
                         'r,
                         ::sqlx::postgres::Postgres,
-                    >>::decode(value)?;
-
-                    #values
-                }
-            }
-        ));
-    }
-
-    if cfg!(feature = "_sqlite") {
-        tts.extend(quote!(
-            #[automatically_derived]
-            impl<'r> ::sqlx::decode::Decode<'r, ::sqlx::sqlite::Sqlite> for #ident {
-                fn decode(
-                    value: ::sqlx::sqlite::SqliteValueRef<'r>,
-                ) -> ::std::result::Result<
-                    Self,
-                    ::std::boxed::Box<
-                        dyn ::std::error::Error
-                            + 'static
-                            + ::std::marker::Send
-                            + ::std::marker::Sync,
-                    >,
-                > {
-                    let value = <&'r ::std::primitive::str as ::sqlx::decode::Decode<
-                        'r,
-                        ::sqlx::sqlite::Sqlite,
                     >>::decode(value)?;
 
                     #values

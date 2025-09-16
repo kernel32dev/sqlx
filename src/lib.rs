@@ -1,14 +1,6 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = include_str!("lib.md")]
 
-#[cfg(all(
-    feature = "sqlite-preupdate-hook",
-    not(any(feature = "sqlite", feature = "sqlite-unbundled"))
-))]
-compile_error!(
-    "sqlite-preupdate-hook requires either 'sqlite' or 'sqlite-unbundled' to be enabled"
-);
-
 pub use sqlx_core::acquire::Acquire;
 pub use sqlx_core::arguments::{Arguments, IntoArguments};
 pub use sqlx_core::column::Column;
@@ -44,25 +36,11 @@ pub use sqlx_core::error::{self, Error, Result};
 #[cfg(feature = "migrate")]
 pub use sqlx_core::migrate;
 
-#[cfg(feature = "mysql")]
-#[cfg_attr(docsrs, doc(cfg(feature = "mysql")))]
-#[doc(inline)]
-pub use sqlx_mysql::{
-    self as mysql, MySql, MySqlConnection, MySqlExecutor, MySqlPool, MySqlTransaction,
-};
-
 #[cfg(feature = "postgres")]
 #[cfg_attr(docsrs, doc(cfg(feature = "postgres")))]
 #[doc(inline)]
 pub use sqlx_postgres::{
     self as postgres, PgConnection, PgExecutor, PgPool, PgTransaction, Postgres,
-};
-
-#[cfg(feature = "_sqlite")]
-#[cfg_attr(docsrs, doc(cfg(feature = "_sqlite")))]
-#[doc(inline)]
-pub use sqlx_sqlite::{
-    self as sqlite, Sqlite, SqliteConnection, SqliteExecutor, SqlitePool, SqliteTransaction,
 };
 
 #[cfg(feature = "any")]
@@ -115,8 +93,6 @@ pub use sqlx_core::rt as __rt;
 /// database:
 ///
 ///  * Postgres: [postgres::types]
-///  * MySQL: [mysql::types]
-///  * SQLite: [sqlite::types]
 ///
 /// Any external types that have had [`Type`] implemented for, are re-exported in this module
 /// for convenience as downstream users need to use a compatible version of the external crate

@@ -118,10 +118,6 @@ impl Migrator {
     ///
     /// May be used with [`Self::dangerous_set_table_name()`] to place the migrations table
     /// in a new schema without requiring it to exist first.
-    ///
-    /// ### Note: Support Depends on Database
-    /// SQLite cannot create new schemas without attaching them to a database file,
-    /// the path of which must be specified separately in an [`ATTACH DATABASE`](https://www.sqlite.org/lang_attach.html) command.
     pub fn create_schema(&mut self, schema_name: impl Into<Cow<'static, str>>) -> &Self {
         self.create_schemas.to_mut().push(schema_name.into());
         self
@@ -158,22 +154,6 @@ impl Migrator {
 
     /// Run any pending migrations against the database; and, validate previously applied migrations
     /// against the current migration source to detect accidental changes in previously-applied migrations.
-    ///
-    /// # Examples
-    ///
-    /// ```rust,no_run
-    /// # use sqlx::migrate::MigrateError;
-    /// # fn main() -> Result<(), MigrateError> {
-    /// #     sqlx::__rt::test_block_on(async move {
-    /// use sqlx::migrate::Migrator;
-    /// use sqlx::sqlite::SqlitePoolOptions;
-    ///
-    /// let m = Migrator::new(std::path::Path::new("./migrations")).await?;
-    /// let pool = SqlitePoolOptions::new().connect("sqlite::memory:").await?;
-    /// m.run(&pool).await
-    /// #     })
-    /// # }
-    /// ```
     pub async fn run<'a, A>(&self, migrator: A) -> Result<(), MigrateError>
     where
         A: Acquire<'a>,
@@ -256,22 +236,6 @@ impl Migrator {
     }
 
     /// Run down migrations against the database until a specific version.
-    ///
-    /// # Examples
-    ///
-    /// ```rust,no_run
-    /// # use sqlx::migrate::MigrateError;
-    /// # fn main() -> Result<(), MigrateError> {
-    /// #     sqlx::__rt::test_block_on(async move {
-    /// use sqlx::migrate::Migrator;
-    /// use sqlx::sqlite::SqlitePoolOptions;
-    ///
-    /// let m = Migrator::new(std::path::Path::new("./migrations")).await?;
-    /// let pool = SqlitePoolOptions::new().connect("sqlite::memory:").await?;
-    /// m.undo(&pool, 4).await
-    /// #     })
-    /// # }
-    /// ```
     pub async fn undo<'a, A>(&self, migrator: A, target: i64) -> Result<(), MigrateError>
     where
         A: Acquire<'a>,

@@ -9,7 +9,7 @@ use crate::sql_str::{SqlSafeStr, SqlStr};
 use crate::Error;
 
 // AUTHOR'S NOTE: I was just going to call this API `sql()` and `Sql`, respectively,
-// but realized that would be extremely annoying to deal with as a SQLite user
+// but realized that would be extremely annoying to deal with as a S-Q-L-i-t-e user
 // because IDE smart completion would always recommend the `Sql` type first.
 //
 // It doesn't really need a super convenient name anyway as it's not meant to be used very often.
@@ -53,23 +53,15 @@ pub struct RawSql(SqlStr);
 /// behave differently than expected. In Postgres, all data-modifying subqueries in a `WITH`
 /// clause execute with the same view of the data; they *cannot* see each other's modifications.
 ///
-/// MySQL, MariaDB and SQLite appear to *only* allow `SELECT` statements in CTEs.
-///
 /// See the appropriate entry in your database's manual for details:
-/// * [MySQL](https://dev.mysql.com/doc/refman/8.0/en/with.html)
-///     * [MariaDB](https://mariadb.com/kb/en/with/)
 /// * [Postgres](https://www.postgresql.org/docs/current/queries-with.html)
-/// * [SQLite](https://www.sqlite.org/lang_with.html)
 ///
 /// ##### `UNION`/`INTERSECT`/`EXCEPT`
 /// You can also use various set-theory operations on queries,
 /// including `UNION ALL` which simply concatenates their results.
 ///
 /// See the appropriate entry in your database's manual for details:
-/// * [MySQL](https://dev.mysql.com/doc/refman/8.0/en/set-operations.html)
-///    * [MariaDB](https://mariadb.com/kb/en/joins-subqueries/)
 /// * [Postgres](https://www.postgresql.org/docs/current/queries-union.html)
-/// * [SQLite](https://www.sqlite.org/lang_select.html#compound_select_statements)
 ///
 /// ### Note: query parameters are not supported.
 /// Query parameters require the use of prepared statements which this API does support.
@@ -108,14 +100,6 @@ pub struct RawSql(SqlStr);
 /// to designate units that can be committed or rolled back piecemeal.
 ///
 /// This also allows for a rudimentary form of pipelining as the whole SQL string is sent in one go.
-///
-/// ##### MySQL and MariaDB: DDL implicitly commits!
-/// MySQL and MariaDB do not support DDL in transactions. Instead, any active transaction is
-/// immediately and implicitly committed by the database server when executing a DDL statement.
-/// Beware of this behavior.
-///
-/// See [MySQL manual, section 13.3.3: Statements That Cause an Implicit Commit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) for details.
-/// See also: [MariaDB manual: SQL statements That Cause an Implicit Commit](https://mariadb.com/kb/en/sql-statements-that-cause-an-implicit-commit/).
 pub fn raw_sql(sql: impl SqlSafeStr) -> RawSql {
     RawSql(sql.into_sql_str())
 }

@@ -9,22 +9,11 @@
 //!
 //! | Database | Version | Driver |
 //! | - | - | - |
-//! | [MariaDB] | 10.1+ | [`mysql`] |
-//! | [Microsoft SQL Server] | 2019 | [`mssql`] (Pending a full rewrite) |
-//! | [MySQL] | 5.6, 5.7, 8.0 | [`mysql`] |
 //! | [PostgreSQL] | 13+ | [`postgres`] |
-//! | [SQLite] | 3.20.1+ | [`sqlite`] |
 //!
-//! [MariaDB]: https://mariadb.com/
-//! [MySQL]: https://www.mysql.com/
-//! [Microsoft SQL Server]: https://www.microsoft.com/en-us/sql-server
 //! [PostgreSQL]: https://www.postgresql.org/
-//! [SQLite]: https://www.sqlite.org/
 //!
-//! [`mysql`]: crate::mysql
 //! [`postgres`]: crate::postgres
-//! [`mssql`]: crate::mssql
-//! [`sqlite`]: crate::sqlite
 //!
 //! ## Tier 2
 //!
@@ -45,9 +34,6 @@
 //! ## Example
 //!
 //! ```rust,ignore
-//! // connect to SQLite
-//! let conn = AnyConnection::connect("sqlite://file.db").await?;
-//!
 //! // connect to Postgres, no code change
 //! // required, decided by the scheme of the URL
 //! let conn = AnyConnection::connect("postgres://localhost/sqlx").await?;
@@ -68,7 +54,7 @@ use crate::value::{Value, ValueRef};
 /// A database driver.
 ///
 /// This trait encapsulates a complete set of traits that implement a driver for a
-/// specific database (e.g., MySQL, PostgreSQL).
+/// specific database (e.g., PostgreSQL).
 pub trait Database: 'static + Sized + Send + Debug {
     /// The concrete `Connection` implementation for this database.
     type Connection: Connection<Database = Self>;

@@ -22,42 +22,32 @@ _tls-rustls-aws-lc-rs = ["sqlx-core/_tls-rustls-aws-lc-rs"]
 _tls-rustls-ring-webpki = ["sqlx-core/_tls-rustls-ring-webpki"]
 _tls-rustls-ring-native-roots = ["sqlx-core/_tls-rustls-ring-native-roots"]
 
-_sqlite = []
-
 # SQLx features
 derive = []
 macros = []
 migrate = ["sqlx-core/migrate"]
 
-sqlx-toml = ["sqlx-core/sqlx-toml", "sqlx-sqlite?/sqlx-toml"]
+sqlx-toml = ["sqlx-core/sqlx-toml"]
 
 # database
-mysql = ["sqlx-mysql"]
 postgres = ["sqlx-postgres"]
-sqlite = ["_sqlite", "sqlx-sqlite/bundled"]
-sqlite-unbundled = ["_sqlite", "sqlx-sqlite/unbundled"]
-
-# Enables `drivers.sqlite.unsafe-load-extensions` in sqlx.toml
-sqlite-load-extension = ["sqlx-sqlite/load-extension"]
 
 # type integrations
-json = ["sqlx-core/json", "sqlx-mysql?/json", "sqlx-postgres?/json", "sqlx-sqlite?/json"]
+json = ["sqlx-core/json", "sqlx-postgres?/json"]
 
-bigdecimal = ["sqlx-core/bigdecimal", "sqlx-mysql?/bigdecimal", "sqlx-postgres?/bigdecimal"]
+bigdecimal = ["sqlx-core/bigdecimal", "sqlx-postgres?/bigdecimal"]
 bit-vec = ["sqlx-core/bit-vec", "sqlx-postgres?/bit-vec"]
-chrono = ["sqlx-core/chrono", "sqlx-mysql?/chrono", "sqlx-postgres?/chrono", "sqlx-sqlite?/chrono"]
+chrono = ["sqlx-core/chrono", "sqlx-postgres?/chrono"]
 ipnet = ["sqlx-core/ipnet", "sqlx-postgres?/ipnet"]
 ipnetwork = ["sqlx-core/ipnetwork", "sqlx-postgres?/ipnetwork"]
 mac_address = ["sqlx-core/mac_address", "sqlx-postgres?/mac_address"]
-rust_decimal = ["sqlx-core/rust_decimal", "sqlx-mysql?/rust_decimal", "sqlx-postgres?/rust_decimal"]
-time = ["sqlx-core/time", "sqlx-mysql?/time", "sqlx-postgres?/time", "sqlx-sqlite?/time"]
-uuid = ["sqlx-core/uuid", "sqlx-mysql?/uuid", "sqlx-postgres?/uuid", "sqlx-sqlite?/uuid"]
+rust_decimal = ["sqlx-core/rust_decimal", "sqlx-postgres?/rust_decimal"]
+time = ["sqlx-core/time", "sqlx-postgres?/time"]
+uuid = ["sqlx-core/uuid", "sqlx-postgres?/uuid"]
 
 [dependencies]
 sqlx-core = { workspace = true, features = ["offline"] }
-sqlx-mysql = { workspace = true, features = ["offline", "migrate"], optional = true }
 sqlx-postgres = { workspace = true, features = ["offline", "migrate"], optional = true }
-sqlx-sqlite = { workspace = true, features = ["offline", "migrate"], optional = true }
 
 async-global-executor = { workspace = true, optional = true }
 async-std = { workspace = true, optional = true }

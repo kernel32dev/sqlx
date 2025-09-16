@@ -522,9 +522,6 @@ impl<DB: Database> PoolOptions<DB> {
     /// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:
     ///
     /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
-    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
-    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
-    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     pub async fn connect(self, url: &str) -> Result<Pool<DB>, Error> {
         self.connect_with(url.parse()?).await
     }
@@ -565,9 +562,6 @@ impl<DB: Database> PoolOptions<DB> {
     /// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:
     ///
     /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
-    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
-    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
-    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     pub fn connect_lazy(self, url: &str) -> Result<Pool<DB>, Error> {
         Ok(self.connect_lazy_with(url.parse()?))
     }

@@ -13,12 +13,6 @@ pub async fn create(connect_opts: &ConnectOpts) -> anyhow::Result<()> {
     let exists = crate::retry_connect_errors(connect_opts, Any::database_exists).await?;
 
     if !exists {
-        #[cfg(feature = "_sqlite")]
-        sqlx::sqlite::CREATE_DB_WAL.store(
-            connect_opts.sqlite_create_db_wal,
-            std::sync::atomic::Ordering::Release,
-        );
-
         Any::create_database(connect_opts.expect_db_url()?).await?;
     }
 
